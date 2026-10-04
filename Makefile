@@ -21,6 +21,7 @@ MOD_CFLAGS = $(CFLAGS) -std=gnu11 -D_GNU_SOURCE -Isrc -shared -fPIC -fvisibility
 # extra flags for a plugin that needs libraries: MOD_LIBS_<name>
 ICON_PKGS  = librsvg-2.0 cairo
 MOD_LIBS_workspaces = $(if $(shell pkg-config --exists $(ICON_PKGS) && echo y),-DHAVE_ICONS $(shell pkg-config --cflags --libs $(ICON_PKGS)))
+MOD_LIBS_sway_workspaces = $(MOD_LIBS_workspaces)
 
 XDG_XML    = $(shell pkg-config --variable=pkgdatadir wayland-protocols)/stable/xdg-shell/xdg-shell.xml
 LAYER_XML  = protocols/wlr-layer-shell-unstable-v1.xml
@@ -47,6 +48,10 @@ $(GEN)/%.o: $(GEN)/%.c
 
 modules/%.so: modules/%.c src/plugin.h
 	$(CC) $(MOD_CFLAGS) -o $@ $< $(MOD_LIBS_$*)
+
+# headers shared by some plugins
+modules/workspaces.so modules/sway_workspaces.so: modules/workspaces.h
+$(filter modules/sway_%,$(MOD_SO)): modules/sway.h
 
 # ---- downloaded / generated files ----
 $(GEN) protocols vendor:
