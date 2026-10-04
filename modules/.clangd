@@ -1,0 +1,21 @@
+# Flags for clangd (the editor), the same ones the Makefile uses for plugins.
+# Relative paths are resolved from this folder.
+CompileFlags:
+  Add: [-xc, -std=gnu11, -D_GNU_SOURCE, -I../src, -Wall, -Wextra, -Wno-unused-parameter]
+---
+# the workspace modules draw app icons with librsvg + cairo (pkg-config --cflags librsvg-2.0 cairo)
+If:
+  PathMatch: (sway_)?workspaces\.[ch]
+CompileFlags:
+  Add:
+    - -DHAVE_ICONS
+    - -I/usr/include/librsvg-2.0
+    - -I/usr/include/cairo
+    - -I/usr/include/gdk-pixbuf-2.0
+    - -I/usr/include/glycin-2
+    - -I/usr/include/glib-2.0
+    - -I/usr/lib/glib-2.0/include
+    - -I/usr/include/pixman-1
+    - -I/usr/include/freetype2
+    - -I/usr/include/libpng16
+    - -I/usr/include/harfbuzz

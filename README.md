@@ -5,15 +5,26 @@ A small Wayland status bar.
 - One bar at the bottom of every monitor (wlr-layer-shell: Hyprland, sway, river...)
 - Configured in Lua; it reloads when you save the config
 - Modules are plugins: one `.c` file each, loaded as a `.so`
-- Event driven: it does nothing until something changes
+- Event driven: most modules wait for the kernel or Hyprland to tell them
+  something changed; the rest (cpu, disk...) read a file every few seconds
 
-Shipped modules: `workspaces` (with app icons), `window`, `language`, `volume`,
-`battery`, `network` and `datetime`. Several of them only work on Hyprland.
+Shipped modules:
+
+- Hyprland: `workspaces` (with app icons), `window`, `submap`, `language`
+- Sway: `sway_workspaces`, `sway_window`, `sway_mode`, `sway_language` (same
+  options as the Hyprland ones)
+- Hardware: `battery`, `brightness`, `volume`, `capslock`
+- System: `system` (cpu, memory, temperature), `disk`
+- Network: `network`, `vpn`
+- Other: `media` (anything playing, through playerctl), `datetime`
+
+Modules with nothing to show (no VPN up, nothing playing...) take no space.
 
 # Installation
 
 1. Install the dependencies (Arch): `wayland wayland-protocols fcft pixman luajit`,
-   plus `librsvg cairo` for the workspace app icons (optional).
+   plus `librsvg cairo` for the workspace app icons and `playerctl` for `media`
+   (both optional).
 2. `make`
 3. `make install` (to `/usr/local`), or run it in place: `make run`.
 
@@ -29,11 +40,16 @@ mybar reads `~/.config/mybar/config.lua`, then `./config.lua` (or `-c FILE`).
 Start from the [config.lua](config.lua) in this repo; every option is commented
 there. Each module documents its own options at the top of `modules/NAME.c`.
 
-`pkill -USR1 mybar` forces a reload.
+The bar reloads by itself when you save the config, no restart needed (it also
+follows a config that is a symlink, as dotfile managers make them). If the new
+config has a Lua error or a font that can't be loaded, it keeps running with
+the old one. `pkill -USR1 mybar`
+forces a reload.
 
 # Writing a module
 
 Drop a `.c` file in `modules/` and run `make`: it becomes `modules/NAME.so`, and
-you add `"NAME"` to the config. The interface is [src/plugin.h](src/plugin.h);
-[examples/](examples/) has a minimal text module (`uptime.c`) and one that draws
-itself (`meter.c`).
+you add `"NAME"` to the config. The interface is [src/plugin.h](src/plugin.h).
+Start from [modules/datetime.c](modules/datetime.c) for a plain text module, or
+[modules/workspaces.h](modules/workspaces.h) for one that draws itself (boxes,
+colors, images).
