@@ -2,6 +2,8 @@
 
 A small Wayland status bar.
 
+![mybar](screenshot.png)
+
 - One bar at the bottom of every monitor (wlr-layer-shell: Hyprland, sway, river...)
 - Configured in Lua; it reloads when you save the config
 - Modules are plugins: one `.c` file each, loaded as a `.so`
